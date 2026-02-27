@@ -1,0 +1,291 @@
+package studyplanner;
+
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+public class MainView {
+
+    private TableView<Subject> tableView = new TableView<>();
+    private TextField nameField;
+    private DatePicker datePicker;
+    private ComboBox<Integer> difficultyBox;
+    private TextField hoursField;
+    private Label statusLabel;
+
+    private Mainn mainApp;  // reference to Main (which contains logic)
+
+    // Colors
+    private final String darkBg = "#1a1a1a";
+    private final String darkerBg = "#0d0d0d";
+    private final String cardBg = "#2d2d2d";
+    private final String textColor = "#ffffff";
+
+    public MainView(Mainn mainApp) {
+        this.mainApp = mainApp;
+    }
+
+    public void show(Stage stage) {
+        stage.setTitle("Smart Study Planner");
+
+        VBox mainLayout = new VBox(15);
+        mainLayout.getChildren().addAll(
+                createHeader(),
+                createForm(),
+                createButtonBox(),
+                createTable(),
+                createStatusBar()
+        );
+        mainLayout.setPadding(new Insets(15));
+        mainLayout.setStyle("-fx-background-color: " + darkBg + ";");
+
+        Scene scene = new Scene(mainLayout, 950, 750);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private VBox createHeader() {
+        Label headerLabel = new Label("SMART STUDY PLANNER");
+        headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        headerLabel.setTextFill(Color.web(textColor));
+
+        Label subtitleLabel = new Label("AI-Powered Priority System");
+        subtitleLabel.setFont(Font.font("Arial", 14));
+        subtitleLabel.setTextFill(Color.web("#b0b0b0"));
+
+        VBox headerBox = new VBox(5, headerLabel, subtitleLabel);
+        headerBox.setAlignment(Pos.CENTER);
+        headerBox.setPadding(new Insets(15));
+        headerBox.setStyle("-fx-background-color: " + darkerBg + ";");
+
+        return headerBox;
+    }
+
+    private GridPane createForm() {
+        GridPane formGrid = new GridPane();
+        formGrid.setHgap(15);
+        formGrid.setVgap(15);
+        formGrid.setPadding(new Insets(25));
+        formGrid.setStyle("-fx-background-color: " + cardBg + "; -fx-background-radius: 10;");
+
+        // Subject Name
+        Label nameLabel = new Label("Subject Name: ");
+        nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        nameLabel.setTextFill(Color.web(textColor));
+
+        nameField = new TextField();
+        nameField.setPromptText("e.g., Math1");
+        nameField.setStyle("-fx-background-color: " + darkBg + "; -fx-text-fill: white; -fx-prompt-text-fill: #808080; -fx-border-color: #404040; -fx-padding: 8;");
+        nameField.setPrefWidth(250);
+
+        // Exam Date
+        Label dateLabel = new Label("Exam Date:");
+        dateLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        dateLabel.setTextFill(Color.web(textColor));
+
+        datePicker = new DatePicker(LocalDate.now().plusDays(7));
+        datePicker.setStyle("-fx-background-color: " + darkBg + "; -fx-text-fill: white; -fx-border-color: #404040;");
+        datePicker.setPrefWidth(250);
+
+        // Difficulty
+        Label difficultyLabel = new Label("Difficulty (1-5):");
+        difficultyLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        difficultyLabel.setTextFill(Color.web(textColor));
+
+        difficultyBox = new ComboBox<>();
+        difficultyBox.getItems().addAll(1, 2, 3, 4, 5);
+        difficultyBox.setValue(3);
+        difficultyBox.setStyle("-fx-background-color: " + darkBg + "; -fx-text-fill: white; -fx-border-color: #404040;");
+        difficultyBox.setPrefWidth(250);
+
+        // Hours Needed
+        Label hoursLabel = new Label("Hours Needed:");
+        hoursLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        hoursLabel.setTextFill(Color.web(textColor));
+
+        hoursField = new TextField();
+        hoursField.setPromptText("e.g., 15");
+        hoursField.setStyle("-fx-background-color: " + darkBg + "; -fx-text-fill: white; -fx-prompt-text-fill: #808080; -fx-border-color: #404040; -fx-padding: 8;");
+        hoursField.setPrefWidth(250);
+
+        // Add to grid
+        formGrid.add(nameLabel, 0, 0);
+        formGrid.add(nameField, 1, 0);
+        formGrid.add(dateLabel, 0, 1);
+        formGrid.add(datePicker, 1, 1);
+        formGrid.add(difficultyLabel, 0, 2);
+        formGrid.add(difficultyBox, 1, 2);
+        formGrid.add(hoursLabel, 0, 3);
+        formGrid.add(hoursField, 1, 3);
+
+        return formGrid;
+    }
+
+    private HBox createButtonBox() {
+        HBox buttonBox = new HBox(15);
+        buttonBox.setAlignment(Pos.CENTER);
+        buttonBox.setPadding(new Insets(10, 0, 20, 0));
+
+        Button addButton = new Button("+ Add Subject");
+        styleButton(addButton, "#2ecc71", "#27ae60");
+        addButton.setOnAction(e -> mainApp.handleAdd(
+                nameField.getText(),
+                datePicker.getValue(),
+                difficultyBox.getValue(),
+                hoursField.getText()
+        ));
+
+        Button calculateButton = new Button("Calculate Priority");
+        styleButton(calculateButton, "#3498db", "#2980b9");
+        calculateButton.setOnAction(e -> mainApp.handleCalculate());
+
+        Button deleteButton = new Button(" DELETE");
+        styleButton(deleteButton, "#e74c3c", "#c0392b");
+        deleteButton.setOnAction(e -> mainApp.handleDelete(tableView.getSelectionModel().getSelectedItem()));
+
+        Button sortButton = new Button("SORT BY PRIORITY");
+        styleButton(sortButton, "#9b59b6", "#8e44ad");
+        sortButton.setOnAction(e -> mainApp.handleSort());
+
+        buttonBox.getChildren().addAll(addButton, calculateButton, deleteButton, sortButton);
+        return buttonBox;
+    }
+
+    private void styleButton(Button button, String color, String hoverColor) {
+        button.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: " + hoverColor + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;"));
+    }
+
+    private TableView<Subject> createTable() {
+        tableView.setStyle("-fx-background-color: " + cardBg + "; -fx-control-inner-background: " + cardBg + "; -fx-table-cell-border-color: #404040;");
+        tableView.setPlaceholder(new Label("No subjects yet. Add your first subject! 📚"));
+
+        // Name Column
+        TableColumn<Subject, String> nameCol = new TableColumn<>("Subject");
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        nameCol.setPrefWidth(180);
+
+        // Date Column
+        TableColumn<Subject, LocalDate> dateCol = new TableColumn<>("Exam Date");
+        dateCol.setCellValueFactory(new PropertyValueFactory<>("examDate"));
+        dateCol.setPrefWidth(120);
+        dateCol.setCellFactory(column -> new TableCell<Subject, LocalDate>() {
+            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            @Override
+            protected void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (empty || date == null) setText(null);
+                else setText(formatter.format(date));
+            }
+        });
+
+        // Difficulty Column
+        TableColumn<Subject, Integer> difficultyCol = new TableColumn<>("Difficulty");
+        difficultyCol.setCellValueFactory(new PropertyValueFactory<>("difficulty"));
+        difficultyCol.setPrefWidth(100);
+        difficultyCol.setCellFactory(column -> new TableCell<Subject, Integer>() {
+            @Override
+            protected void updateItem(Integer difficulty, boolean empty) {
+                super.updateItem(difficulty, empty);
+                if (empty || difficulty == null) {
+                    setText(null);
+                } else {
+                    setText("★".repeat(difficulty) + "☆".repeat(5 - difficulty));
+                    setTextFill(difficulty >= 4 ? Color.ORANGERED : difficulty >= 3 ? Color.GOLD : Color.LIGHTGREEN);
+                }
+            }
+        });
+
+        // Hours Column
+        TableColumn<Subject, Integer> hoursCol = new TableColumn<>("Hours");
+        hoursCol.setCellValueFactory(new PropertyValueFactory<>("hoursNeeded"));
+        hoursCol.setPrefWidth(80);
+
+        // Days Left Column
+        TableColumn<Subject, Long> daysCol = new TableColumn<>("Days Left");
+        daysCol.setCellValueFactory(new PropertyValueFactory<>("daysUntilExam"));
+        daysCol.setPrefWidth(80);
+        daysCol.setCellFactory(column -> new TableCell<Subject, Long>() {
+            @Override
+            protected void updateItem(Long days, boolean empty) {
+                super.updateItem(days, empty);
+                if (empty || days == null) {
+                    setText(null);
+                } else {
+                    setText(String.valueOf(days));
+                    if (days < 3) setStyle("-fx-background-color: #4a0000; -fx-text-fill: #ff6b6b;");
+                    else if (days < 7) setStyle("-fx-background-color: #4a3f00; -fx-text-fill: #ffd93d;");
+                    else setStyle("-fx-background-color: #004d1a; -fx-text-fill: #6bff6b;");
+                }
+            }
+        });
+
+        // Priority Column
+        TableColumn<Subject, Double> priorityCol = new TableColumn<>("Priority");
+        priorityCol.setCellValueFactory(new PropertyValueFactory<>("priorityScore"));
+        priorityCol.setPrefWidth(80);
+        priorityCol.setCellFactory(column -> new TableCell<Subject, Double>() {
+            @Override
+            protected void updateItem(Double priority, boolean empty) {
+                super.updateItem(priority, empty);
+                if (empty || priority == null || priority == 0) {
+                    setText("-");
+                } else {
+                    setText(String.format("%.1f", priority));
+                    if (priority > 15) setStyle("-fx-background-color: #4a0000; -fx-text-fill: #ff6b6b;");
+                    else if (priority > 8) setStyle("-fx-background-color: #4a3f00; -fx-text-fill: #ffd93d;");
+                    else setStyle("-fx-background-color: #004d1a; -fx-text-fill: #6bff6b;");
+                }
+            }
+        });
+
+        tableView.getColumns().addAll(nameCol, dateCol, difficultyCol, hoursCol, daysCol, priorityCol);
+        return tableView;
+    }
+
+    private Label createStatusBar() {
+        statusLabel = new Label("Ready to plan your study!");
+        statusLabel.setStyle("-fx-background-color: " + darkerBg + "; -fx-padding: 8; -fx-background-radius: 5; -fx-text-fill: " + textColor + ";");
+        statusLabel.setFont(Font.font("Arial", 12));
+        return statusLabel;
+    }
+
+    // Helper methods for Main to use
+    public TableView<Subject> getTableView() {
+        return tableView;
+    }
+
+    public void setStatusMessage(String message) {
+        statusLabel.setText(message);
+    }
+
+    public void clearForm() {
+        nameField.clear();
+        datePicker.setValue(LocalDate.now().plusDays(7));
+        difficultyBox.setValue(3);
+        hoursField.clear();
+    }
+
+    public void refreshTable() {
+        tableView.refresh();
+    }
+
+    public void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+}

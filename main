@@ -3,340 +3,97 @@ package studyplanner;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Pos;
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
-import java.time.LocalDate;
 import javafx.stage.Stage;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
 
 public class Mainn extends Application {
-    private TableView<Subject> tableView= new TableView<>();
+
     private ObservableList<Subject> subjectList = FXCollections.observableArrayList();
-    private Label statusLabel = new Label("Ready to plan your study!");
+    private MainView view;
 
     @Override
     public void start(Stage stage) {
-        stage.setTitle("Smart Study Planner");
-        String darkBg = "#1a1a1a";
-        String darkerBg = "#0d0d0d";
-        String cardBg = "#2d2d2d";
-        String textColor = "#ffffff";
-        String accentColor = "#6d6d6d";
-        String buttonBlue = "#3498db";
-        String buttonGreen = "#2ecc71";
-        String buttonRed = "#e74c3c";
-        String buttonPurple = "#9b59b6";
+        // Create view and pass reference to Main (this)
+        view = new MainView(this);
 
-        Label headerLabel = new Label("SMART STUDY PLANNER");
-        headerLabel.setFont(Font.font("Arial", FontWeight.BOLD,24));
-        headerLabel.setTextFill(Color.web(textColor));
-        headerLabel.setPadding(new Insets(10));
+        // Connect the subject list to the table
+        view.getTableView().setItems(subjectList);
 
-        Label subtitleLabel = new Label("AI-Powered Priority System");
-        subtitleLabel.setFont(Font.font("Arial", 14));
-        subtitleLabel.setTextFill(Color.web("#b0b0b0"));
+        // Show the app
+        view.show(stage);
+    }
 
-        VBox headerBox = new VBox(5, headerLabel, subtitleLabel);
-        headerBox.setAlignment(Pos.CENTER);
-        headerBox.setPadding(new Insets(15));
-        headerBox.setStyle("-fx-background-color: " + darkerBg + ";");
+    // ========== ALL LOGIC METHODS HERE ==========
 
-        //Create input form
-        GridPane formGrid = new GridPane();
-        formGrid.setHgap(15);
-        formGrid.setVgap(15);
-        formGrid.setPadding(new Insets(25));
-        formGrid.setStyle("-fx-background-color: " + cardBg + "; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 5);");
+    public void handleAdd(String name, LocalDate date, int difficulty, String hoursText) {
+        try {
+            int hours = Integer.parseInt(hoursText);
 
-        Label nameLabel = new Label("Subject Name: ");
-        nameLabel.setFont(Font.font("Arial", FontWeight.BOLD,13));
-        nameLabel.setTextFill(Color.web(textColor));
-        TextField nameField = new TextField();
-        nameField.setPromptText("e.g., Math1");
-        nameField.setStyle("-fx-background-color: " + darkBg + "; -fx-text-fill: white; -fx-prompt-text-fill: #808080; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #404040; -fx-padding: 8;");
-        nameField.setPrefWidth(250);
-
-        Label dateLabel = new Label("Exam Date:");
-        dateLabel.setFont(Font.font("Arial",FontWeight.BOLD,13));
-        dateLabel.setTextFill(Color.web(textColor));
-        DatePicker datePicker = new DatePicker(LocalDate.now().plusDays(7));
-        datePicker.setStyle("-fx-background-color: " + darkBg + "; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #404040;");
-        datePicker.setPrefWidth(250);
-
-        Label difficultyLabel = new Label("Difficulty (1-5):");
-        difficultyLabel.setFont(Font.font("Arial", FontWeight.BOLD,13));
-        difficultyLabel.setTextFill(Color.web(textColor));
-        ComboBox<Integer> difficultyBox = new ComboBox<>();
-        difficultyBox.getItems().addAll(1, 2, 3, 4, 5);
-        difficultyBox.setValue(3);
-        difficultyBox.setStyle("-fx-background-color: " + darkBg + "; -fx-text-fill: white; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #404040;");
-        difficultyBox.setPrefWidth(250);
-
-        Label hoursLabel = new Label("Hours Needed:");
-        hoursLabel.setFont(Font.font("Arial", FontWeight.BOLD,13));
-        hoursLabel.setTextFill(Color.web(textColor));
-        TextField hoursField = new TextField();
-        hoursField.setPromptText("e.g.,15");
-        hoursField.setStyle("-fx-background-color: " + darkBg + "; -fx-text-fill: white; -fx-prompt-text-fill: #808080; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #404040; -fx-padding: 8;");
-        difficultyBox.setPrefWidth(250);
-
-        //Add to grid
-        formGrid.add(nameLabel,0,0);
-        formGrid.add(nameField,1,0);
-        formGrid.add(dateLabel,0,1);
-        formGrid.add(datePicker,1,1);
-        formGrid.add(difficultyLabel,0,2);
-        formGrid.add(difficultyBox,1,2);
-        formGrid.add(hoursLabel,0,3);
-        formGrid.add(hoursField,1,3);
-
-        //Buttons
-        HBox buttonBox = new HBox(15);
-        buttonBox.setAlignment(Pos.CENTER);
-        buttonBox.setPadding(new Insets(10,0,20,0));
-
-        Button addButton = new Button("+ Add Subject");
-        addButton.setFont(Font.font("Arial", FontWeight.BOLD,12));
-        addButton.setStyle("-fx-background-color: " + buttonGreen + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;");
-        addButton.setOnMouseEntered(e -> addButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;"));
-        addButton.setOnMouseExited(e -> addButton.setStyle("-fx-background-color: " + buttonGreen + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;"));
-
-        Button calculateButton = new Button("Calculate Priority");
-        calculateButton.setFont(Font.font("Arial", FontWeight.BOLD, 12));
-        calculateButton.setStyle("-fx-background-color: " + buttonBlue + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;");
-        calculateButton.setOnMouseEntered(e -> calculateButton.setStyle("-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;"));
-        calculateButton.setOnMouseExited(e -> calculateButton.setStyle("-fx-background-color: " + buttonBlue + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;"));
-
-        Button deleteButton = new Button(" DELETE");
-        deleteButton.setFont(Font.font("Arial", FontWeight.BOLD, 12));
-        deleteButton.setStyle("-fx-background-color: " + buttonRed + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;");
-        deleteButton.setOnMouseEntered(e -> deleteButton.setStyle("-fx-background-color: #c0392b; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;"));
-        deleteButton.setOnMouseExited(e -> deleteButton.setStyle("-fx-background-color: " + buttonRed + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;"));
-
-        Button sortButton = new Button("SORT BY PRIORITY");
-        sortButton.setFont(Font.font("Arial", FontWeight.BOLD,12));
-        sortButton.setStyle("-fx-background-color: " + buttonPurple + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;");
-        sortButton.setOnMouseEntered(e -> sortButton.setStyle("-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;"));
-        sortButton.setOnMouseExited(e -> sortButton.setStyle("-fx-background-color: " + buttonPurple + "; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10 20;"));
-        buttonBox.getChildren().addAll(addButton, calculateButton, deleteButton,sortButton);
-
-
-        formGrid.add(addButton,0,4);
-        formGrid.add(calculateButton,1,4);
-        formGrid.add(deleteButton,2,4);
-
-        //Table columns
-        tableView.setStyle("-fx-background-color: " + cardBg + "; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #404040;");
-        tableView.setPlaceholder(new Label("No subjects yet. Add your first subject! 📚"));
-
-        TableColumn<Subject, String>nameCol = new TableColumn<>("Subject");
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        nameCol.setPrefWidth(180);
-        nameCol.setStyle("-fx-font-weight: bold; -fx-alignment: CENTER-LEFT;");
-
-        TableColumn<Subject, LocalDate> dateCol = new TableColumn<>("Exam Date");
-        dateCol.setCellValueFactory(new PropertyValueFactory<>("examDate"));
-        dateCol.setPrefWidth(120);
-        dateCol.setStyle("-fx-alignment: CENTER;");
-        dateCol.setCellFactory(column -> new TableCell<Subject, LocalDate>(){
-            private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            @Override
-            protected void updateItem(LocalDate date, boolean empty){
-                super.updateItem(date, empty);
-                if (empty || date ==null){
-                    setText(null);
-                }else{
-                    setText(formatter.format(date));
-                }
-            }
-        });
-
-        TableColumn<Subject, Integer> difficultyCol = new TableColumn<>("Difficulty");
-        difficultyCol.setCellValueFactory(new PropertyValueFactory<>("difficulty"));
-        difficultyCol.setPrefWidth(100);
-        difficultyCol.setStyle("-fx-alignment: CENTER;");
-        difficultyCol.setCellFactory(column -> new TableCell<Subject, Integer>(){
-            @Override
-            protected void updateItem(Integer difficulty, boolean empty) {
-                super.updateItem(difficulty, empty);
-                if (empty || difficulty == null) {
-                    setText(null);
-                } else {
-                    setText("★".repeat(difficulty) + "☆".repeat(5 - difficulty));
-                    if (difficulty >= 4) {
-                        setTextFill(Color.ORANGERED);
-                    } else if (difficulty >= 3) {
-                        setTextFill(Color.GOLD);
-                    } else {
-                        setTextFill(Color.LIGHTGREEN);
-                    }
-                }
-            }
-        });
-
-        TableColumn<Subject, Integer> hoursCol = new TableColumn<>("Hours Needed");
-        hoursCol.setCellValueFactory(new PropertyValueFactory<>("hoursNeeded"));
-        hoursCol.setPrefWidth(80);
-        hoursCol.setStyle("-fx-alignment: CENTER;");
-
-
-        TableColumn<Subject, Double> priorityCol = new TableColumn<>("Priority Score");
-        priorityCol.setCellValueFactory(new PropertyValueFactory<>("priorityScore"));
-        priorityCol.setPrefWidth(100);
-        priorityCol.setStyle("-fx-alignment: CENTER;");
-        priorityCol.setCellFactory(column -> new TableCell<Subject, Double>(){
-
-            protected void updateItem(Double priority, boolean empty){
-                super.updateItem(priority,empty);
-                if(empty || priority == null || priority==0){
-                    setText("-");
-                }else{
-                    setText(String.format("%.1f",priority));
-                    if(priority >15){
-                        setStyle("-fx-background-color: #4a0000; -fx-text-fill: #ff6b6b; -fx-font-weight: bold;");
-                    } else if (priority > 8) {
-                        setStyle("-fx-background-color: #4a3f00; -fx-text-fill: #ffd93d; -fx-font-weight: bold;");
-                    }else{
-                        setStyle("-fx-background-color: #004d1a; -fx-text-fill: #6bff6b;");
-                    }
-                }
-            }
-        });
-
-        TableColumn<Subject,Long> daysCol = new TableColumn<>("Days Left");
-        daysCol.setCellValueFactory(new PropertyValueFactory<>("daysUntilExam"));
-        daysCol.setPrefWidth(100);
-        daysCol.setStyle("-fx-alignment: CENTER;");
-        daysCol.setCellFactory(column ->new TableCell<Subject,Long>() {
-
-            protected void updateItem(Long days, boolean empty){
-                super.updateItem(days, empty);
-                if (empty || days == null){
-                    setText(null);
-                }else{
-                    setText(String.valueOf(days));
-                    if(days<3){
-                        setStyle("-fx-background-color: #4a0000; -fx-text-fill: #ff6b6b; -fx-font-weight: bold;");
-                    } else if ( days <7) {
-                        setStyle("-fx-background-color: #4a3f00; -fx-text-fill: #ffd93d; -fx-font-weight: bold;");
-                    }else{
-                        setStyle("-fx-background-color: #004d1a; -fx-text-fill: #6bff6b;");
-                    }
-                }
-            }
-        });
-
-        tableView.getColumns().addAll( nameCol, dateCol, difficultyCol, hoursCol, daysCol, priorityCol);
-        tableView.setItems(subjectList);
-        tableView.setStyle(tableView.getStyle() + "; -fx-control-inner-background: " + cardBg + "; -fx-table-cell-border-color: #404040;");
-
-        statusLabel.setStyle("-fx-background-color: " + darkerBg + "; -fx-padding: 8; -fx-background-radius: 5; -fx-text-fill: " + textColor + ";");
-        statusLabel.setFont(Font.font("Arial",12));
-
-        //Add button action
-        addButton.setOnAction(e ->{
-            try{
-                String name = nameField.getText();
-                LocalDate date = datePicker.getValue();
-                int difficulty = difficultyBox.getValue();
-                int hours = Integer.parseInt(hoursField.getText());
-
-                if (name.isEmpty()){
-                    showAlert("Error", "Please enter subject name");
-                    return;
-                }
-                if (hours <=0){
-                    showAlert("Error","Hours must be positive");
-                    return;
-                }
-                if(date.isBefore(LocalDate.now())){
-                    showAlert("Error", "Exam date cannot be in the past");
-                    return;
-                }
-                Subject subject = new Subject(name, date, difficulty, hours);
-                subjectList.add(subject);
-
-                //Clear fields
-                nameField.clear();
-                datePicker.setValue(LocalDate.now().plusDays(7));
-                difficultyBox.setValue(3);
-                hoursField.clear();
-
-                statusLabel.setText("Added: "+name+" | Total subjects: "+subjectList.size());
-
-            } catch (NumberFormatException ex){
-                showAlert("Error", "Please enter valid hours (number)");
-            }
-        });
-
-        //Delete button action
-        deleteButton.setOnAction(e -> {
-            Subject selected = tableView.getSelectionModel().getSelectedItem();
-            if (selected != null){
-                subjectList.remove(selected);
-                statusLabel.setText("Subject deleted | Total subjects: "+ subjectList.size());
-            }else{
-                showAlert("Error", "Please select a subject to delete");
-            }
-        });
-
-        //Calculate button action
-        calculateButton.setOnAction(e ->{
-            if (subjectList.isEmpty()) {
-                showAlert("Info", "Add some subjects first!");
+            if (name.isEmpty()) {
+                view.showAlert("Error", "Please enter subject name");
                 return;
             }
-            for ( Subject subject : subjectList){
-                long daysLeft = subject.getDaysUntilExam();
-                int difficulty = subject.getDifficulty();
-                int hours = subject.getHoursNeeded();
-
-                double priority = (difficulty * 2.5) + (hours *1.2)+(25.0 / (daysLeft+0.5));
-                subject.setPriorityScore(priority);
-            }
-            tableView.refresh();
-            statusLabel.setText("Priority calculated! Click 'SORT' to see the ordered");
-            showAlert("Success", "Priority scores updated!");
-        });
-
-        sortButton.setOnAction(e ->{
-            if ( subjectList.isEmpty()){
-                showAlert("Info", "No subjects to sort");
+            if (hours <= 0) {
+                view.showAlert("Error", "Hours must be positive");
                 return;
             }
-            subjectList.sort((s1,s2) -> Double.compare(s2.getPriorityScore(), s1.getPriorityScore()));
+            if (date.isBefore(LocalDate.now())) {
+                view.showAlert("Error", "Exam date cannot be in the past");
+                return;
+            }
 
-            tableView.refresh();
-            statusLabel.setText("Sorted by priority! Highest priority subjects shown first");
-        });
+            Subject subject = new Subject(name, date, difficulty, hours);
+            subjectList.add(subject);
 
-        //Layout
-        VBox mainLayout = new VBox(15);
-        mainLayout.getChildren().addAll(formGrid, tableView, headerBox,buttonBox,statusLabel);
-        mainLayout.setPadding(new Insets(15));
-        mainLayout.setStyle("-fx-background-color: " + darkBg + ";");
+            view.clearForm();
+            view.setStatusMessage("Added: " + name + " | Total subjects: " + subjectList.size());
 
-        Scene scene = new Scene(mainLayout,950,750);
-        stage.setScene(scene);
-        stage.show();
+        } catch (NumberFormatException ex) {
+            view.showAlert("Error", "Please enter valid hours (number)");
+        }
     }
-    private void showAlert(String title, String message){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+
+    public void handleCalculate() {
+        if (subjectList.isEmpty()) {
+            view.showAlert("Info", "Add some subjects first!");
+            return;
+        }
+
+        for (Subject subject : subjectList) {
+            long daysLeft = subject.getDaysUntilExam();
+            int difficulty = subject.getDifficulty();
+            int hours = subject.getHoursNeeded();
+
+            double priority = (difficulty * 2.5) + (hours * 1.2) + (25.0 / (daysLeft + 0.5));
+            subject.setPriorityScore(priority);
+        }
+
+        view.refreshTable();
+        view.setStatusMessage("Priority calculated! Click 'SORT' to see the order");
+        view.showAlert("Success", "Priority scores updated!");
     }
-    public static void main(String[] args){
+
+    public void handleDelete(Subject selected) {
+        if (selected != null) {
+            subjectList.remove(selected);
+            view.setStatusMessage("Subject deleted | Total subjects: " + subjectList.size());
+        } else {
+            view.showAlert("Error", "Please select a subject to delete");
+        }
+    }
+
+    public void handleSort() {
+        if (subjectList.isEmpty()) {
+            view.showAlert("Info", "No subjects to sort");
+            return;
+        }
+
+        subjectList.sort((s1, s2) -> Double.compare(s2.getPriorityScore(), s1.getPriorityScore()));
+        view.refreshTable();
+        view.setStatusMessage("Sorted by priority! Highest priority subjects shown first");
+    }
+
+    public static void main(String[] args) {
         launch();
     }
 }

@@ -6,7 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import java.time.LocalDate;
 
-public class Mainn extends Application {
+public class Main extends Application {
 
     private ObservableList<Subject> subjectList = FXCollections.observableArrayList();
     private MainView view;
@@ -16,7 +16,7 @@ public class Mainn extends Application {
         // Create view and pass reference to Main (this)
         view = new MainView(this);
 
-        // Connect the subject list to the table
+        // Connect the Subject.java list to the table
         view.getTableView().setItems(subjectList);
 
         // Show the app
@@ -30,7 +30,7 @@ public class Mainn extends Application {
             int hours = Integer.parseInt(hoursText);
 
             if (name.isEmpty()) {
-                view.showAlert("Error", "Please enter subject name");
+                view.showAlert("Error", "Please enter Subject.java name");
                 return;
             }
             if (hours <= 0) {
@@ -78,7 +78,7 @@ public class Mainn extends Application {
             subjectList.remove(selected);
             view.setStatusMessage("Subject deleted | Total subjects: " + subjectList.size());
         } else {
-            view.showAlert("Error", "Please select a subject to delete");
+            view.showAlert("Error", "Please select a Subject.java to delete");
         }
     }
 
@@ -94,6 +94,6 @@ public class Mainn extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }

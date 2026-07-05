@@ -22,7 +22,7 @@ public class MainView {
     private TextField hoursField;
     private Label statusLabel;
 
-    private Mainn mainApp;  // reference to Main (which contains logic)
+    private Main mainApp;  // reference to Main (which contains logic)
 
     // Colors
     private final String darkBg = "#1a1a1a";
@@ -30,7 +30,7 @@ public class MainView {
     private final String cardBg = "#2d2d2d";
     private final String textColor = "#ffffff";
 
-    public MainView(Mainn mainApp) {
+    public MainView(Main mainApp) {
         this.mainApp = mainApp;
     }
 
